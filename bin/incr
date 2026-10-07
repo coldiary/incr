@@ -17,10 +17,14 @@ switch(:commit, default_value: true, desc: 'Commit changes')
 switch(:tag, default_value: true, desc: 'Create a git tag')
 
 pre do |global, command, options, args|
-  if args.length != 1 || !['major', 'minor', 'patch'].any? {|segment| args.include?(segment)}
-    warn('expecting a single argument: major, minor or patch.')
+  segments = ['major', 'minor', 'patch', 'prerelease', 'build']
+  valid_length = args.length == 1 || (args.length == 2 && ['prerelease', 'build'].include?(args[0]))
+
+  unless valid_length && segments.include?(args[0])
+    warn('expecting major, minor, patch, prerelease, or build; prerelease and build may include an identifier.')
     return false
   end
+
   true
 end
 
@@ -29,7 +33,12 @@ desc('Increment the version of your NPM package.')
 command :npm do |cmd|
   cmd.action do |global_options, options, args|
     npm = Incr::Command::Npm.new(args, global_options)
-    npm.execute
+    begin
+      npm.execute
+    rescue Incr::Service::Version::Error => error
+      warn(error.message)
+      false
+    end
   end
 end
 
@@ -38,7 +47,12 @@ desc('Increment the version of your Mix package.')
 command :mix do |cmd|
   cmd.action do |global_options, options, args|
     mix = Incr::Command::Mix.new(args, global_options)
-    mix.execute
+    begin
+      mix.execute
+    rescue Incr::Service::Version::Error => error
+      warn(error.message)
+      false
+    end
   end
 end
 
@@ -47,7 +61,12 @@ desc('Increment the version of your config/app.php.')
 command :laravel do |cmd|
   cmd.action do |global_options, options, args|
     mix = Incr::Command::Laravel.new(args, global_options)
-    mix.execute
+    begin
+      mix.execute
+    rescue Incr::Service::Version::Error => error
+      warn(error.message)
+      false
+    end
   end
 end
 

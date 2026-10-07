@@ -42,6 +42,28 @@ To increment the minor segment of your Mix package version number:
 ~> incr mix minor
 ```
 
+To start or increment a prerelease:
+
+```shell
+# 1.2.3 -> 1.2.3-alpha.0
+~> incr npm prerelease alpha
+
+# 1.2.3-alpha.0 -> 1.2.3-alpha.1
+~> incr npm prerelease
+```
+
+To start or increment build metadata:
+
+```shell
+# 1.2.3 -> 1.2.3+ci.0
+~> incr npm build ci
+
+# 1.2.3+ci.0 -> 1.2.3+ci.1
+~> incr npm build
+```
+
+Prerelease increments clear build metadata. Major, minor, and patch increments clear both prerelease and build metadata. Supplying an identifier that conflicts with the existing identifier returns an error without changing the version. Identifiers use the SemVer character rules and their trailing numeric component is incremented; for example, `alpha` starts at `alpha.0` and then becomes `alpha.1`.
+
 ### Arguments
 
 Here are some arguments that can be used with `incr`:
@@ -50,6 +72,9 @@ Here are some arguments that can be used with `incr`:
 - `-t` : Tag name pattern, where `%s` will be replaced with the new version (default: `v%s`)
 - `--[no-]commit` : Commit changes. (default: enabled)
 - `--[no-]tag` : Create a git tag. (default: enabled)
+- `major`, `minor`, `patch` : Increment the corresponding numeric segment.
+- `prerelease [identifier]` : Start or increment a prerelease identifier.
+- `build [identifier]` : Start or increment build metadata.
 
 Example:
 

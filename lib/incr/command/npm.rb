@@ -5,7 +5,7 @@ module Incr
   module Command
     class Npm
       # pattern for any semver version, including pre-release label (ie. 1.0.0-alpha)
-      VERSION_PATTERN = "[\\w\\.\\-]*"
+      VERSION_PATTERN = "[0-9A-Za-z.-]+(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?"
 
       # pattern preceding the version in package.json and package-lock.json (v1 and v2)
       LOOKBEHIND_PATTERNS = [
@@ -15,6 +15,7 @@ module Incr
 
       def initialize(args, global_options)
         @segment = args[0]
+        @identifier = args[1]
 
         @package_json_filename = File.join('.', global_options[:version_file_dir], 'package.json')
         @package_json_lock_filename = File.join('.', global_options[:version_file_dir], 'package-lock.json')
@@ -42,7 +43,7 @@ module Incr
 
         file_version = package_json['version']
         old_version = SemVersion.new(file_version)
-        new_version = Incr::Service::Version.increment_segment(old_version, @segment)
+        new_version = Incr::Service::Version.increment_segment(old_version, @segment, @identifier)
 
         replace_file_version(@package_json_filename, new_version.to_s)
         replace_file_version(@package_json_lock_filename, new_version.to_s)
